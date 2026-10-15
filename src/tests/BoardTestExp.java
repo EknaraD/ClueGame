@@ -21,7 +21,7 @@ public class BoardTestExp {
         board = new TestBoard();
     }
 
-    //Adjacency Test
+    //Adjacency Testing
 
     //tests top left 
     @Test
@@ -111,7 +111,7 @@ public class BoardTestExp {
         assertTrue(targets.contains(board.getCell(2, 0)));
     }
 
-    //tests step from different starting location
+    //tests steps from different starting location
     @Test
     public void testTargetsDiffStart() {
         board.calcTargets(board.getCell(1, 1), 1);
