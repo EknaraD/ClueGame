@@ -21,7 +21,7 @@ public class BoardTestExp {
         board = new TestBoard();
     }
 
-    //Adjacency Testing
+    //Adjacency Test
 
     //tests top left 
     @Test
