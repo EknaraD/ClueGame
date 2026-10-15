@@ -172,12 +172,13 @@ public class BoardTestExp {
     public void testTargetsOccupied() {
         board.getCell(0, 1).setOccupied(true);
 
-        board.calcTargets(board.getCell(0,0), 2);
+        TestBoardCell c = board.getCell(0, 0);
+        board.calcTargets(c, 2);
 
         Set<TestBoardCell> targets = board.getTargets();
 
-        assertFalse(targets.contains(board.getCell(0, 1)));
-        assertFalse(targets.contains(board.getCell(0, 2)));
+        assertEquals(1, targets.size());
+        assertTrue(targets.contains(board.getCell(2, 0)));
     }
 
     //tests room and occupied board with targets
