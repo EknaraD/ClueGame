@@ -5,13 +5,11 @@ import java.util.Set;
 
 public class TestBoardCell {
 
-    private int row;
-    private int column;
+    private int row, column;
+    private boolean room, occupied; 
+
 
     private Set<TestBoardCell> adjList;
-
-    private boolean room;
-    private boolean occupied;
 
     public TestBoardCell(int row, int column) {
         this.row = row;
@@ -25,7 +23,7 @@ public class TestBoardCell {
 
     public void addAdjacency(TestBoardCell cell) {
         // nothing here yet
-        //adjList.add(cell); would be in here when implementing the solution
+        adjList.add(cell); // would be in here when implementing the solution
     }
 
     public Set<TestBoardCell> getAdjList() {

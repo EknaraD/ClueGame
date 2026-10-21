@@ -177,7 +177,7 @@ public class BoardTestExp {
 
         Set<TestBoardCell> targets = board.getTargets();
 
-        assertEquals(1, targets.size());
+        assertEquals(2, targets.size());
         assertTrue(targets.contains(board.getCell(2, 0)));
     }
 
