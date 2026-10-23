@@ -22,8 +22,7 @@ public class TestBoardCell {
     }
 
     public void addAdjacency(TestBoardCell cell) {
-        // nothing here yet
-        adjList.add(cell); // would be in here when implementing the solution
+        adjList.add(cell); 
     }
 
     public Set<TestBoardCell> getAdjList() {
