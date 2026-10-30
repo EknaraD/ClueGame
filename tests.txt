@@ -1,0 +1,15 @@
+FileInitTests.java:
+
+1. testBoardDimensions - checks that the board has correct number of rows and columns
+
+2. testRoomNames - checks that each room is loaded correctly
+
+3. testRoomCenters - checks center for every room
+
+4. testSecretPassages - checks that secret passage identification is correct
+
+6. testWalkway - checks that a walkway can be verified
+
+7. testUnusedSpace - checks that unsused space can be verified
+
+8. testRoomLookup - checks that a room can be retrieved using a BoardCell

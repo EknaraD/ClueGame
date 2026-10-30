@@ -118,7 +118,8 @@ public class Board {
         }
     }
 
-    public void loadLayoutConfig() throws BadConfigFormatException, FileNotFoundException {
+    public void loadLayoutConfig()
+            throws BadConfigFormatException, FileNotFoundException {
 
         List<String[]> rows = new ArrayList<>();
 
@@ -182,16 +183,16 @@ public class Board {
         for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < numColumns; col++) {
                 BoardCell cell = board[row][col];
-
+                Room room = roomMap.get(cell.getInitial());
+                
                 if (cell.isRoomCenter()) {
-                    Room room = roomMap.get(cell.getInitial());
-
                     room.setCenterCell(cell);
+                }
+                if (cell.isLabel()) {
                     room.setLabelCell(cell);
                     cell.setLabel(true);
                 }
             }
-            
         }
 
         calcAdjacencies();

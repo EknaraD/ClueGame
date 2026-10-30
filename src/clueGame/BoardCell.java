@@ -28,13 +28,14 @@ public class BoardCell {
 
         adjList = new HashSet<>();
 
-        for (int i = 1; i < value.length(); i++) {
-            char symbol = value.charAt(i);
+        // Why is this a for loop? -Samah
+        if (value.length() > 1) {
+            char symbol = value.charAt(1);
 
             if (symbol == '#') {
-                roomCenter = true;
+                roomLabel = true;
             } else if (symbol == '*') {
-                setSecretPassage();
+                roomCenter = true;
             } else if (symbol == '^') {
                 doorDirection = DoorDirection.UP;
             } else if (symbol == 'v') {
@@ -43,6 +44,8 @@ public class BoardCell {
                 doorDirection = DoorDirection.LEFT;
             } else if (symbol == '>') {
                 doorDirection = DoorDirection.RIGHT;
+            } else if(Character.isLetter(symbol)){
+                secretPassage = symbol;
             }
         }
     }
