@@ -118,8 +118,7 @@ public class Board {
         }
     }
 
-    public void loadLayoutConfig()
-            throws BadConfigFormatException, FileNotFoundException {
+    public void loadLayoutConfig() throws BadConfigFormatException, FileNotFoundException {
 
         List<String[]> rows = new ArrayList<>();
 
@@ -192,6 +191,7 @@ public class Board {
                     cell.setLabel(true);
                 }
             }
+            
         }
 
         calcAdjacencies();
