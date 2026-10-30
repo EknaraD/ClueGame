@@ -1,3 +1,4 @@
+
 package clueGame;
 
 import java.io.File;
@@ -38,17 +39,17 @@ public class Board {
     }
 
     public void initialize() {
-    try {
-        roomMap.clear();
-        targets.clear();
+        try {
+            roomMap.clear();
+            targets.clear();
 
-        loadSetupConfig();
-        loadLayoutConfig();
+            loadSetupConfig();
+            loadLayoutConfig();
 
-    } catch (BadConfigFormatException | FileNotFoundException e) {
-        e.printStackTrace();
+        } catch (BadConfigFormatException | FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
-}
 
     private File findFile(String filename) {
         File file = new File(filename);
@@ -60,8 +61,7 @@ public class Board {
         return new File("data", filename);
     }
 
-    public void loadSetupConfig()
-            throws BadConfigFormatException, FileNotFoundException {
+    public void loadSetupConfig() throws BadConfigFormatException, FileNotFoundException {
 
         roomMap.clear();
 
@@ -70,7 +70,7 @@ public class Board {
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine().trim();
 
-            // Skip blank lines and comments.
+            //blank lines and comments
             if (line.isEmpty() || line.startsWith("//")) {
                 continue;
             }
@@ -101,9 +101,7 @@ public class Board {
                     "Duplicate room or space initial: " + initial);
             }
 
-            if (type.equalsIgnoreCase("Room")) {
-                roomMap.put(initial, new Room(name));
-            } else if (type.equalsIgnoreCase("Space")) {
+            if (type.equalsIgnoreCase("Room") || type.equalsIgnoreCase("Space")) {
                 roomMap.put(initial, new Room(name));
             } else {
                 scanner.close();
@@ -116,7 +114,7 @@ public class Board {
 
         if (roomMap.isEmpty()) {
             throw new BadConfigFormatException(
-                "The setup file contains no rooms or spaces.");
+                "setup file contains no rooms or spaces");
         }
     }
 
@@ -139,7 +137,7 @@ public class Board {
 
         if (rows.isEmpty()) {
             throw new BadConfigFormatException(
-                "The layout file is empty.");
+                "layout file is empty");
         }
 
         numRows = rows.size();
@@ -147,20 +145,20 @@ public class Board {
 
         if (numColumns == 0) {
             throw new BadConfigFormatException(
-                "The layout file has no columns.");
+                "layout file doesn't have columns");
         }
 
         board = new BoardCell[numRows][numColumns];
 
-        // Check that every row has the same number of columns.
+        //every row has the same number of columns?
         for (int row = 0; row < numRows; row++) {
             if (rows.get(row).length != numColumns) {
                 throw new BadConfigFormatException(
-                    "Inconsistent number of columns in layout file.");
+                    "inconsistent number of columns in layout file");
             }
         }
 
-        // Create all board cells.
+        //make all board cells
         for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < numColumns; col++) {
                 String value = rows.get(row)[col].trim();
@@ -181,7 +179,7 @@ public class Board {
             }
         }
 
-        // Find room centers and label cells.
+        //find room centers and label cells
         for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < numColumns; col++) {
                 BoardCell cell = board[row][col];
@@ -193,10 +191,8 @@ public class Board {
                     room.setLabelCell(cell);
                     cell.setLabel(true);
                 }
-
             }
         }
-
 
         calcAdjacencies();
     }
@@ -205,6 +201,7 @@ public class Board {
         for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < numColumns; col++) {
                 board[row][col].clearAdjList();
+
                 Set<BoardCell> adjacencies = getAdjList(row, col);
 
                 for (BoardCell cell : adjacencies) {
@@ -242,7 +239,7 @@ public class Board {
         Set<BoardCell> adjList = new HashSet<>();
         BoardCell current = getCell(row, col);
 
-        // Room cells connect to their doorways and secret passages.
+        //room cells that connect to doorways and secret passages
         if (current.isRoom()) {
             char roomInitial = current.getInitial();
 
@@ -250,22 +247,18 @@ public class Board {
                 for (int c = 0; c < numColumns; c++) {
                     BoardCell cell = getCell(r, c);
 
-                    if (cell.isDoorway()
-                            && doorwayLeadsIntoRoom(r, c, cell.getDoorDirection(),
-                                    roomInitial)) {
+                    if (cell.isDoorway() && doorwayLeadsIntoRoom(r, c, cell.getDoorDirection(), roomInitial)) {
                         adjList.add(cell);
                     }
 
-                    if (cell.getInitial() == roomInitial
-                            && cell.getSecretPassage() != ' ') {
+                    if (cell.getInitial() == roomInitial && cell.getSecretPassage() != ' ') {
                         char destination = cell.getSecretPassage();
 
                         for (int rr = 0; rr < numRows; rr++) {
                             for (int cc = 0; cc < numColumns; cc++) {
                                 BoardCell destinationCell = getCell(rr, cc);
 
-                                if (destinationCell.getInitial() == destination
-                                        && destinationCell.getSecretPassage() != ' ') {
+                                if (destinationCell.getInitial() == destination && destinationCell.getSecretPassage() != ' ') {
                                     adjList.add(destinationCell);
                                 }
                             }
@@ -277,17 +270,14 @@ public class Board {
             return adjList;
         }
 
-        // Walkway cells connect to neighboring walkways and valid doorways.
-        int[][] directions = {
-            {-1, 0}, {1, 0}, {0, -1}, {0, 1}
-        };
+        //walkway cells that connect to other walkways and doorways
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
         for (int[] direction : directions) {
             int newRow = row + direction[0];
             int newCol = col + direction[1];
 
-            if (newRow < 0 || newRow >= numRows
-                    || newCol < 0 || newCol >= numColumns) {
+            if (newRow < 0 || newRow >= numRows || newCol < 0 || newCol >= numColumns) {
                 continue;
             }
 
@@ -295,9 +285,7 @@ public class Board {
 
             if (neighbor.isWalkway()) {
                 adjList.add(neighbor);
-            } else if (neighbor.isDoorway()
-                    && doorwayFacesCell(neighbor.getDoorDirection(),
-                            newRow, newCol, row, col)) {
+            } else if (neighbor.isDoorway() && doorwayFacesCell(neighbor.getDoorDirection(), newRow, newCol, row, col)) {
                 adjList.add(neighbor);
             }
         }
@@ -305,27 +293,29 @@ public class Board {
         return adjList;
     }
 
-    
-    private boolean doorwayFacesCell(DoorDirection direction,
-            int doorRow, int doorCol, int otherRow, int otherCol) {
-
+    private boolean doorwayFacesCell(DoorDirection direction, int doorRow, int doorCol, int otherRow, int otherCol) {
         switch (direction) {
             case UP:
                 return otherRow == doorRow + 1 && otherCol == doorCol;
+
             case DOWN:
                 return otherRow == doorRow - 1 && otherCol == doorCol;
+
             case LEFT:
                 return otherRow == doorRow && otherCol == doorCol + 1;
+
             case RIGHT:
                 return otherRow == doorRow && otherCol == doorCol - 1;
+
             default:
                 return false;
         }
     }
 
-
-    private boolean doorwayLeadsIntoRoom(int row, int col,
-            DoorDirection direction, char roomInitial) {
+    private boolean doorwayLeadsIntoRoom(
+            int row, int col,
+            DoorDirection direction,
+            char roomInitial) {
 
         int roomRow = row;
         int roomCol = col;
@@ -334,21 +324,24 @@ public class Board {
             case UP:
                 roomRow--;
                 break;
+
             case DOWN:
                 roomRow++;
                 break;
+
             case LEFT:
                 roomCol--;
                 break;
+
             case RIGHT:
                 roomCol++;
                 break;
+
             default:
                 return false;
         }
 
-        if (roomRow < 0 || roomRow >= numRows
-                || roomCol < 0 || roomCol >= numColumns) {
+        if (roomRow < 0 || roomRow >= numRows || roomCol < 0 || roomCol >= numColumns) {
             return false;
         }
 
@@ -357,19 +350,23 @@ public class Board {
 
     public void calcTargets(BoardCell startCell, int pathLength) {
         targets = new HashSet<>();
+
         Set<BoardCell> visited = new HashSet<>();
         visited.add(startCell);
 
         findTargets(startCell, pathLength, visited);
     }
 
-    private void findTargets(BoardCell current, int steps,
+    private void findTargets(
+            BoardCell current,
+            int steps,
             Set<BoardCell> visited) {
 
         if (steps == 0) {
             if (current != null && !current.isOccupied()) {
                 targets.add(current);
             }
+
             return;
         }
 
@@ -380,7 +377,7 @@ public class Board {
 
             visited.add(next);
 
-            // Entering a room ends the movement.
+            //entering room ends movement
             if (next.isRoom()) {
                 targets.add(next);
             } else {
