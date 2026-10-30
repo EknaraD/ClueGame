@@ -1,0 +1,13 @@
+// Rooms and room cards
+Room, Observatory, O
+Room, Armory, A
+Room, Greenhouse, G
+Room, Music Room, M
+Room, Theater, T
+Room, Wine Cellar, C
+Room, Nursery, N
+Room, Parlor, P
+Room, Bowling Alley, B
+// Other spaces on the board
+Space, Unused, X
+Space, Walkway, W

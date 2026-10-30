@@ -1,49 +1,69 @@
-
 package clueGame;
 
-public class BoardCell {
-    private int row, column;
-    private char initial;
-    private char secretPassage, doorDirection;
-    private boolean roomCenter, occupied;
+import java.util.HashSet;
+import java.util.Set;
 
-    public BoardCell(int row, int column, String val) {
+public class BoardCell {
+    private int row;
+    private int col;
+    private char initial;
+    private DoorDirection doorDirection;
+    private boolean roomLabel;
+    private boolean roomCenter;
+    private char secretPassage;
+    private Set<BoardCell> adjList;
+
+    private boolean occupied;
+
+    public BoardCell(int row, int col, String value) {
         this.row = row;
-        this.column = column;
-        initial = val.charAt(0);
-        
-        secretPassage = ' ';
-        doorDirection = ' ';
-        
+        this.col = col;
+
+        initial = value.charAt(0);
+        doorDirection = DoorDirection.NONE;
+        roomLabel = false;
         roomCenter = false;
+        secretPassage = ' ';
         occupied = false;
 
-        for (int i = 1; i < val.length(); i++) {
-            char symbol = val.charAt(i);
+        adjList = new HashSet<>();
+
+        for (int i = 1; i < value.length(); i++) {
+            char symbol = value.charAt(i);
 
             if (symbol == '#') {
                 roomCenter = true;
             } else if (symbol == '*') {
-                switch (initial) {
-                    case 'S': 
-                        secretPassage = 'K'; // Study to Kitchen
-                        break;
-                    case 'K': 
-                        secretPassage = 'S'; // Kitchen to Study
-                        break;
-                    case 'O': 
-                        secretPassage = 'C'; // Lounge to Conservatory
-                        break;
-                    case 'C': 
-                        secretPassage = 'O'; // Conservatory to Lounge
-                        break;
-                    default: 
-                        secretPassage = ' ';
-                        break;
-                }
-            } else if (symbol == '^' || symbol == 'v' || symbol == '<' || symbol == '>') {
-                doorDirection = symbol;
+                setSecretPassage();
+            } else if (symbol == '^') {
+                doorDirection = DoorDirection.UP;
+            } else if (symbol == 'v') {
+                doorDirection = DoorDirection.DOWN;
+            } else if (symbol == '<') {
+                doorDirection = DoorDirection.LEFT;
+            } else if (symbol == '>') {
+                doorDirection = DoorDirection.RIGHT;
             }
+        }
+    }
+
+    private void setSecretPassage() {
+        switch (initial) {
+            case 'S':
+                secretPassage = 'K';
+                break;
+            case 'K':
+                secretPassage = 'S';
+                break;
+            case 'O':
+                secretPassage = 'C';
+                break;
+            case 'C':
+                secretPassage = 'O';
+                break;
+            default:
+                secretPassage = ' ';
+                break;
         }
     }
 
@@ -51,20 +71,40 @@ public class BoardCell {
         return row;
     }
 
+    public int getCol() {
+        return col;
+    }
+
     public int getColumn() {
-        return column;
+        return col;
     }
 
     public char getInitial() {
         return initial;
     }
 
-    public boolean isOccupied() {
-        return occupied;
+    public DoorDirection getDoorDirection() {
+        return doorDirection;
     }
 
-    public void setOccupied(boolean occupied) {
-        this.occupied = occupied;
+    public boolean isDoorway() {
+        return doorDirection != DoorDirection.NONE;
+    }
+
+    public boolean isRoomCenter() {
+        return roomCenter;
+    }
+
+    public boolean isLabel() {
+        return roomLabel;
+    }
+
+    public void setLabel(boolean roomLabel) {
+        this.roomLabel = roomLabel;
+    }
+
+    public char getSecretPassage() {
+        return secretPassage;
     }
 
     public boolean isRoom() {
@@ -75,19 +115,23 @@ public class BoardCell {
         return initial == 'W';
     }
 
-    public boolean isRoomCenter() {
-        return roomCenter;
+    public boolean isOccupied() {
+        return occupied;
     }
 
-    public boolean isDoorway() {
-        return doorDirection != ' ';
+    public void setOccupied(boolean occupied) {
+        this.occupied = occupied;
     }
 
-    public char getDoorDirection() {
-        return doorDirection;
+    public void addAdj(BoardCell cell) {
+        adjList.add(cell);
     }
 
-    public char getSecretPassage() {
-        return secretPassage;
+    public Set<BoardCell> getAdjList() {
+        return adjList;
+    }
+
+    public void clearAdjList() {
+        adjList.clear();
     }
 }
