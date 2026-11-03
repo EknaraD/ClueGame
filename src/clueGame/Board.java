@@ -198,17 +198,77 @@ public class Board {
         calcAdjacencies();
     }
 
+    //only walkways and room centers get adjacencies, all other cells stay empty
     private void calcAdjacencies() {
         for (int row = 0; row < numRows; row++) {
             for (int col = 0; col < numColumns; col++) {
                 board[row][col].clearAdjList();
+            }
+        }
 
-                Set<BoardCell> adjacencies = getAdjList(row, col);
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numColumns; col++) {
+                BoardCell cell = board[row][col];
 
-                for (BoardCell cell : adjacencies) {
-                    board[row][col].addAdj(cell);
+                if (cell.isWalkway()) {
+                    addWalkwayAdjacencies(cell);
+                }
+
+                //secret passage connects this room's center to the other room's center
+                if (cell.getSecretPassage() != ' ') {
+                    BoardCell center = getRoom(cell).getCenterCell();
+                    center.addAdj(getRoom(cell.getSecretPassage()).getCenterCell());
                 }
             }
+        }
+    }
+
+    private void addWalkwayAdjacencies(BoardCell cell) {
+        int row = cell.getRow();
+        int col = cell.getCol();
+
+        //walkways connect to adjacent walkways (doors are walkways too)
+        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+
+        for (int[] direction : directions) {
+            int newRow = row + direction[0];
+            int newCol = col + direction[1];
+
+            if (newRow < 0 || newRow >= numRows || newCol < 0 || newCol >= numColumns) {
+                continue;
+            }
+
+            BoardCell neighbor = getCell(newRow, newCol);
+
+            if (neighbor.isWalkway()) {
+                cell.addAdj(neighbor);
+            }
+        }
+
+        //doors connect both ways with the center of the room they open into
+        if (cell.isDoorway()) {
+            BoardCell center = getRoom(getDoorTarget(cell)).getCenterCell();
+            cell.addAdj(center);
+            center.addAdj(cell);
+        }
+    }
+
+    //the room cell a door opens into
+    private BoardCell getDoorTarget(BoardCell door) {
+        int row = door.getRow();
+        int col = door.getCol();
+
+        switch (door.getDoorDirection()) {
+            case UP:
+                return getCell(row - 1, col);
+            case DOWN:
+                return getCell(row + 1, col);
+            case LEFT:
+                return getCell(row, col - 1);
+            case RIGHT:
+                return getCell(row, col + 1);
+            default:
+                return null;
         }
     }
 
@@ -236,117 +296,9 @@ public class Board {
         return roomMap;
     }
 
+    //adjacencies are built once in calcAdjacencies()
     public Set<BoardCell> getAdjList(int row, int col) {
-        Set<BoardCell> adjList = new HashSet<>();
-        BoardCell current = getCell(row, col);
-
-        //room cells that connect to doorways and secret passages
-        if (current.isRoom()) {
-            char roomInitial = current.getInitial();
-
-            for (int r = 0; r < numRows; r++) {
-                for (int c = 0; c < numColumns; c++) {
-                    BoardCell cell = getCell(r, c);
-
-                    if (cell.isDoorway() && doorwayLeadsIntoRoom(r, c, cell.getDoorDirection(), roomInitial)) {
-                        adjList.add(cell);
-                    }
-
-                    if (cell.getInitial() == roomInitial && cell.getSecretPassage() != ' ') {
-                        char destination = cell.getSecretPassage();
-
-                        for (int rr = 0; rr < numRows; rr++) {
-                            for (int cc = 0; cc < numColumns; cc++) {
-                                BoardCell destinationCell = getCell(rr, cc);
-
-                                if (destinationCell.getInitial() == destination && destinationCell.getSecretPassage() != ' ') {
-                                    adjList.add(destinationCell);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return adjList;
-        }
-
-        //walkway cells that connect to other walkways and doorways
-        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-
-        for (int[] direction : directions) {
-            int newRow = row + direction[0];
-            int newCol = col + direction[1];
-
-            if (newRow < 0 || newRow >= numRows || newCol < 0 || newCol >= numColumns) {
-                continue;
-            }
-
-            BoardCell neighbor = getCell(newRow, newCol);
-
-            if (neighbor.isWalkway()) {
-                adjList.add(neighbor);
-            } else if (neighbor.isDoorway() && doorwayFacesCell(neighbor.getDoorDirection(), newRow, newCol, row, col)) {
-                adjList.add(neighbor);
-            }
-        }
-
-        return adjList;
-    }
-
-    private boolean doorwayFacesCell(DoorDirection direction, int doorRow, int doorCol, int otherRow, int otherCol) {
-        switch (direction) {
-            case UP:
-                return otherRow == doorRow + 1 && otherCol == doorCol;
-
-            case DOWN:
-                return otherRow == doorRow - 1 && otherCol == doorCol;
-
-            case LEFT:
-                return otherRow == doorRow && otherCol == doorCol + 1;
-
-            case RIGHT:
-                return otherRow == doorRow && otherCol == doorCol - 1;
-
-            default:
-                return false;
-        }
-    }
-
-    private boolean doorwayLeadsIntoRoom(
-            int row, int col,
-            DoorDirection direction,
-            char roomInitial) {
-
-        int roomRow = row;
-        int roomCol = col;
-
-        switch (direction) {
-            case UP:
-                roomRow--;
-                break;
-
-            case DOWN:
-                roomRow++;
-                break;
-
-            case LEFT:
-                roomCol--;
-                break;
-
-            case RIGHT:
-                roomCol++;
-                break;
-
-            default:
-                return false;
-        }
-
-        if (roomRow < 0 || roomRow >= numRows || roomCol < 0 || roomCol >= numColumns) {
-            return false;
-        }
-
-        return getCell(roomRow, roomCol).getInitial() == roomInitial;
+        return getCell(row, col).getAdjList();
     }
 
     public void calcTargets(BoardCell startCell, int pathLength) {
@@ -358,34 +310,31 @@ public class Board {
         findTargets(startCell, pathLength, visited);
     }
 
-    private void findTargets(
-            BoardCell current,
-            int steps,
-            Set<BoardCell> visited) {
+    private void findTargets(BoardCell current, int steps, Set<BoardCell> visited) {
 
-        if (steps == 0) {
-            if (current != null && !current.isOccupied()) {
-                targets.add(current);
-            }
-
-            return;
-        }
-
-        for (BoardCell next : current.getAdjList()) {
-            if (visited.contains(next) || next.isOccupied()) {
+        for (BoardCell neighbor : current.getAdjList()) {
+            if (visited.contains(neighbor)) {
                 continue;
             }
 
-            visited.add(next);
-
-            //entering room ends movement
-            if (next.isRoom()) {
-                targets.add(next);
-            } else {
-                findTargets(next, steps - 1, visited);
+            //entering a room ends movement, even if another player is in it
+            if (neighbor.isRoomCenter()) {
+                targets.add(neighbor);
+                continue;
             }
 
-            visited.remove(next);
+            //players block walkways
+            if (neighbor.isOccupied()) {
+                continue;
+            }
+
+            if (steps == 1) {
+                targets.add(neighbor);
+            } else {
+                visited.add(neighbor);
+                findTargets(neighbor, steps - 1, visited);
+                visited.remove(neighbor);
+            }
         }
     }
 
