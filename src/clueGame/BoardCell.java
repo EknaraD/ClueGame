@@ -28,7 +28,6 @@ public class BoardCell {
 
         adjList = new HashSet<>();
 
-        // Why is this a for loop? -Samah
         if (value.length() > 1) {
             char symbol = value.charAt(1);
 
