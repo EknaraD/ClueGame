@@ -41,6 +41,8 @@ public abstract class Player {
         return hand;
     }
 
-    public abstract void updateHand(Card card);
+    public void updateHand(Card card){
+        hand.add(card);
+    }
 
 }
