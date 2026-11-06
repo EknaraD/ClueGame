@@ -13,7 +13,6 @@ import java.util.Set;
 
 public class Board {
     private static Board theInstance = new Board();
-
     private BoardCell[][] board;
     private int numRows;
     private int numColumns;
@@ -23,10 +22,14 @@ public class Board {
 
     private Map<Character, Room> roomMap;
     private Set<BoardCell> targets;
+    private ArrayList<Player> players;
+    private ArrayList<Card> deck;
 
     private Board() {
         roomMap = new HashMap<>();
         targets = new HashSet<>();
+        players = new ArrayList<>();
+        deck = new ArrayList<>();
     }
 
     public static Board getInstance() {
@@ -42,6 +45,8 @@ public class Board {
         try {
             roomMap.clear();
             targets.clear();
+            players.clear();
+            deck.clear();
 
             loadSetupConfig();
             loadLayoutConfig();
@@ -340,5 +345,13 @@ public class Board {
 
     public Set<BoardCell> getTargets() {
         return targets;
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public ArrayList<Card> getDeck() {
+        return deck;
     }
 }
