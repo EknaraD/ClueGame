@@ -1,23 +1,23 @@
 package clueGame;
 import java.awt.Color;
-import java.awt.geom.Point2D;
+import java.util.ArrayList;
 import java.util.List;
-
-import org.jspecify.annotations.Nullable;
 
 
 
 public abstract class Player {
-    String name; 
-    Color color;
-    boolean isHuman;
-    Point2D start_location; 
+    private String name; 
+    private Color color;
+    private int row;
+    private int col;  
+    private ArrayList<Card> hand;
 
-    public Player(String name, Color color, boolean isHuman, Point2D start_location){
+    public Player(String name, Color color, int row, int col){
         this.name = name;
         this.color = color;
-        this.isHuman = isHuman;
-        this.start_location = start_location;
+        this.row = row;
+        this.col = col;
+        this.hand = new ArrayList<>();
     }
 
     public String getName(){
@@ -28,20 +28,19 @@ public abstract class Player {
         return color;
     }
 
-    public boolean isHuman(){
-        return isHuman;
+    public int getRow() {
+        return row;
+
     }
 
-    public int getStartingLocation(){
-        // return start_X, start_y
-        return 0;
+    public int getColumn() {
+        return col;
+    }
+
+    public  List<Card> getHand() {
+        return hand;
     }
 
     public abstract void updateHand(Card card);
 
-    public abstract int getRow();
-
-    public abstract int getColumn();
-
-    protected abstract List<Card> getHand();
 }
