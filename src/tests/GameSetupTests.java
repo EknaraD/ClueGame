@@ -15,15 +15,17 @@ import clueGame.CardType;
 import clueGame.ComputerPlayer;
 import clueGame.HumanPlayer;
 import clueGame.Player;
-import clueGame.Solution;
 
 /**
  * GameSetupTests: tests loading the players, creating the deck, and dealing.
  *
  * PLAYER SECTION (this file): Player class, HumanPlayer and ComputerPlayer
  * children, loading players from ClueSetup.txt, and the player side of the deal.
- * CARD SECTION: add the Card, CardType, deck, and Solution tests below the
+ * CARD SECTION: add the Card, CardType, deck, and answer tests below the
  * marked divider at the bottom of this file.
+ *
+ * From Card, these tests only need the constructor Card(String, CardType)
+ * and an equals() method that compares name and type.
  *
  * Expected player data comes from these lines in ClueSetup.txt:
  *   Player, Ada Byte, Red, Human, 0, 7
@@ -38,6 +40,7 @@ public class GameSetupTests {
 	private static final int NUM_PLAYERS = 6;
 	private static final int NUM_HUMAN = 1;
 	private static final int NUM_COMPUTER = 5;
+	// The answer is always 1 room, 1 person, and 1 weapon
 	private static final int SOLUTION_SIZE = 3;
 
 	private static Board board;
@@ -50,7 +53,7 @@ public class GameSetupTests {
 	public static void setUp() {
 		board = Board.getInstance();
 		board.setConfigFiles("ClueLayout.csv", "ClueSetup.txt");
-		board.initialize(); // assumed to also deal; call board.deal() here if yours is separate
+		board.initialize(); // loads players and the deck; call board.deal() here if dealing is separate
 	}
 
 	// ------------------------------------------------------------------
@@ -69,7 +72,7 @@ public class GameSetupTests {
 	public void testOneHumanFiveComputer() {
 		int humans = 0;
 		int computers = 0;
-		for (Player p : board.getPlayers()) {
+		for (Player p : loadedPlayers()) {
 			if (p instanceof HumanPlayer) {
 				humans++;
 			} else if (p instanceof ComputerPlayer) {
@@ -113,7 +116,7 @@ public class GameSetupTests {
 	/** Players are stored in file order, so the human (first line) is first. */
 	@Test
 	public void testPlayersInFileOrder() {
-		List<Player> players = board.getPlayers();
+		List<Player> players = loadedPlayers();
 		assertEquals("Ada Byte", players.get(0).getName());
 		assertEquals("Charles Bit", players.get(NUM_PLAYERS - 1).getName());
 	}
@@ -121,7 +124,7 @@ public class GameSetupTests {
 	/** Every player has a non-null color, and no two players share one. */
 	@Test
 	public void testColorsConvertedAndUnique() {
-		List<Player> players = board.getPlayers();
+		List<Player> players = loadedPlayers();
 		for (int i = 0; i < players.size(); i++) {
 			assertNotNull(players.get(i).getColor());
 			for (int j = i + 1; j < players.size(); j++) {
@@ -133,7 +136,7 @@ public class GameSetupTests {
 	/** Every player starts on a walkway cell, and no two start on the same cell. */
 	@Test
 	public void testStartLocationsValid() {
-		List<Player> players = board.getPlayers();
+		List<Player> players = loadedPlayers();
 		for (int i = 0; i < players.size(); i++) {
 			Player p = players.get(i);
 			assertEquals('W', board.getCell(p.getRow(), p.getColumn()).getInitial(),
@@ -189,7 +192,7 @@ public class GameSetupTests {
 	/** Every player received at least one card. */
 	@Test
 	public void testEveryPlayerHasCards() {
-		for (Player p : board.getPlayers()) {
+		for (Player p : loadedPlayers()) {
 			assertFalse(p.getHand().isEmpty(), p.getName() + " has no cards");
 		}
 	}
@@ -199,18 +202,18 @@ public class GameSetupTests {
 	public void testHandsRoughlyEqual() {
 		int min = Integer.MAX_VALUE;
 		int max = 0;
-		for (Player p : board.getPlayers()) {
+		for (Player p : loadedPlayers()) {
 			min = Math.min(min, p.getHand().size());
 			max = Math.max(max, p.getHand().size());
 		}
 		assertTrue(max - min <= 1, "Hand sizes range from " + min + " to " + max);
 	}
 
-	/** Every card outside the solution ends up in some player's hand. */
+	/** Every card except the 3 answer cards ends up in some player's hand. */
 	@Test
 	public void testAllCardsDealt() {
 		int dealt = 0;
-		for (Player p : board.getPlayers()) {
+		for (Player p : loadedPlayers()) {
 			dealt += p.getHand().size();
 		}
 		assertEquals(board.getDeck().size() - SOLUTION_SIZE, dealt);
@@ -220,22 +223,11 @@ public class GameSetupTests {
 	@Test
 	public void testNoCardDealtTwice() {
 		List<Card> seen = new ArrayList<Card>();
-		for (Player p : board.getPlayers()) {
+		for (Player p : loadedPlayers()) {
 			for (Card c : p.getHand()) {
-				assertFalse(seen.contains(c), c.getCardName() + " was dealt twice");
+				assertFalse(seen.contains(c), "A card was dealt twice");
 				seen.add(c);
 			}
-		}
-	}
-
-	/** No player is holding a solution card. */
-	@Test
-	public void testHandsExcludeSolution() {
-		Solution answer = board.getSolution();
-		for (Player p : board.getPlayers()) {
-			assertFalse(p.getHand().contains(answer.getRoom()));
-			assertFalse(p.getHand().contains(answer.getPerson()));
-			assertFalse(p.getHand().contains(answer.getWeapon()));
 		}
 	}
 
@@ -243,9 +235,19 @@ public class GameSetupTests {
 	// Helper
 	// ------------------------------------------------------------------
 
+	/**
+	 * Returns the loaded players, failing right away if they weren't all
+	 * loaded. This keeps loop-based tests from passing on an empty list.
+	 */
+	private List<Player> loadedPlayers() {
+		List<Player> players = board.getPlayers();
+		assertEquals(NUM_PLAYERS, players.size(), "Players were not loaded");
+		return players;
+	}
+
 	/** Returns the loaded player with this name, or fails the test if none exists. */
 	private Player findPlayer(String name) {
-		for (Player p : board.getPlayers()) {
+		for (Player p : loadedPlayers()) {
 			if (p.getName().equals(name)) {
 				return p;
 			}
@@ -255,6 +257,8 @@ public class GameSetupTests {
 	}
 
 	// ==================================================================
-	// CARD SECTION: Card, CardType, deck, and Solution tests go below.
+	// CARD SECTION: Card, CardType, deck, and answer tests go below.
+	// Testing that no player holds an answer card belongs here once you
+	// decide how Board stores the answer.
 	// ==================================================================
 }

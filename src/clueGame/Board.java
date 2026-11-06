@@ -4,6 +4,7 @@ package clueGame;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +51,7 @@ public class Board {
 
             loadSetupConfig();
             loadLayoutConfig();
+            deal();
 
         } catch (BadConfigFormatException | FileNotFoundException e) {
             e.printStackTrace();
@@ -69,6 +71,8 @@ public class Board {
     public void loadSetupConfig() throws BadConfigFormatException, FileNotFoundException {
 
         roomMap.clear();
+        players.clear();
+        deck.clear();
 
         Scanner scanner = new Scanner(findFile(setupConfigFile));
 
@@ -81,37 +85,54 @@ public class Board {
             }
 
             String[] parts = line.split(",");
+            String type = parts[0].trim(); // gets the object that it will talk to
+            if (type == "Room" || type == "Space"){
+                if (parts.length != 3) {
+                    scanner.close();
+                    throw new BadConfigFormatException(
+                        "Invalid setup line: " + line);
+                }
 
-            if (parts.length != 3) {
-                scanner.close();
-                throw new BadConfigFormatException(
+                String name = parts[1].trim();
+                String initialText = parts[2].trim();
+
+                if (initialText.length() != 1 || name.isEmpty()) {
+                    scanner.close();
+                    throw new BadConfigFormatException(
+                        "Invalid setup line: " + line);
+                }
+
+                char initial = initialText.charAt(0);
+
+                if (roomMap.containsKey(initial)) {
+                    scanner.close();
+                    throw new BadConfigFormatException(
+                        "Duplicate room or space initial: " + initial);
+                }
+
+                if (type.equalsIgnoreCase("Room") || type.equalsIgnoreCase("Space")) {
+                    roomMap.put(initial, new Room(name));
+                } else {
+                    scanner.close();
+                    throw new BadConfigFormatException(
+                        "Invalid setup type: " + type);
+                }
+
+                // EKNARA: fix this as you work through it
+                // deck.add(new Card(name, CardType.ROOM));
+            }
+            if (type == "Player"){
+                if (parts.length != 6){
+                    scanner.close();
+                    throw new BadConfigFormatException(
                     "Invalid setup line: " + line);
-            }
+                }
+                String Playername = parts[1].trim();
+                Color color = convertColor(parts[2]);
+                String HumanOrComputer = parts[3].trim();
+                int row = Integer.parseInt(parts[4]);
+                int col = Integer.parseInt(parts[5]);
 
-            String type = parts[0].trim();
-            String name = parts[1].trim();
-            String initialText = parts[2].trim();
-
-            if (initialText.length() != 1 || name.isEmpty()) {
-                scanner.close();
-                throw new BadConfigFormatException(
-                    "Invalid setup line: " + line);
-            }
-
-            char initial = initialText.charAt(0);
-
-            if (roomMap.containsKey(initial)) {
-                scanner.close();
-                throw new BadConfigFormatException(
-                    "Duplicate room or space initial: " + initial);
-            }
-
-            if (type.equalsIgnoreCase("Room") || type.equalsIgnoreCase("Space")) {
-                roomMap.put(initial, new Room(name));
-            } else {
-                scanner.close();
-                throw new BadConfigFormatException(
-                    "Invalid setup type: " + type);
             }
         }
 
@@ -120,6 +141,36 @@ public class Board {
         if (roomMap.isEmpty()) {
             throw new BadConfigFormatException(
                 "setup file contains no rooms or spaces");
+        }
+    }
+
+    // helper function to decode the color to Color object
+    private Color convertColor(String colorName) throws BadConfigFormatException {
+        switch (colorName.trim().toLowerCase()) {
+            case "red":
+                return Color.RED;
+            case "blue":
+                return Color.BLUE;
+            case "green":
+                return Color.GREEN;
+            case "yellow":
+                return Color.YELLOW;
+            case "orange":
+                return Color.ORANGE;
+            case "magenta":
+                return Color.MAGENTA;
+            case "pink":
+                return Color.PINK;
+            case "cyan":
+                return Color.CYAN;
+            case "white":
+                return Color.WHITE;
+            case "black":
+                return Color.BLACK;
+            case "gray":
+                return Color.GRAY;
+            default:
+                throw new BadConfigFormatException("Unknown player color: " + colorName);
         }
     }
 
