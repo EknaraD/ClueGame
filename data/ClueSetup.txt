@@ -18,3 +18,10 @@ Player, Linus Stack, Green, Computer, 7, 0
 Player, Rosa Cache, Yellow, Computer, 7, 25
 Player, Alan Null, Orange, Computer, 16, 0
 Player, Charles Bit, Magenta, Computer, 23, 20
+// Weapons: name
+Weapon, Wrench
+Weapon, Rope
+Weapon, Soldering Iron
+Weapon, Ethernet Cable
+Weapon, Trophy
+Weapon, Drone Propeller

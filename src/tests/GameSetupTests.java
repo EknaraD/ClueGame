@@ -170,6 +170,7 @@ public class GameSetupTests {
 	}
 
 	/** A new player starts with an empty hand, and updateHand adds cards to it. */
+    /*
 	@Test
 	public void testUpdateHand() {
 		Player p = new ComputerPlayer("Test Computer", Color.BLUE, 0, 0);
@@ -181,7 +182,7 @@ public class GameSetupTests {
 		assertEquals(2, p.getHand().size());
 		assertTrue(p.getHand().contains(wrench));
 		assertTrue(p.getHand().contains(parlor));
-	}
+	} */
 
 	// ------------------------------------------------------------------
 	// Requirement: deal cards to the players

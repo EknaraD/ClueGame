@@ -45,4 +45,8 @@ public abstract class Player {
         hand.add(card);
     }
 
+    public void clearHand() {
+        hand.clear();
+    }
+
 }
