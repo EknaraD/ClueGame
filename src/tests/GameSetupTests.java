@@ -257,4 +257,12 @@ public class GameSetupTests {
 	// ==================================================================
 	// CARD SECTION: Card, CardType, deck, and Solution tests go below.
 	// ==================================================================
+	@Test
+    public void testCardEquals() {
+        // Two cards with the same name and type should be equal.
+        Card card1 = new Card("Miss Scarlet", CardType.PERSON);
+        Card card2 = new Card("Miss Scarlet", CardType.PERSON);
+
+        assertEquals(card1, card2);
+    }
 }

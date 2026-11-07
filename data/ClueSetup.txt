@@ -11,3 +11,17 @@ Room, Bowling Alley, B
 // Other spaces on the board
 Space, Unused, X
 Space, Walkway, W
+// People
+Person, Miss Scarlet, Red, Human
+Person, Colonel Mustard, Yellow, Computer
+Person, Mrs. White, White, Computer
+Person, Mr. Green, Green, Computer
+Person, Mrs. Peacock, Blue, Computer
+Person, Professor Plum, Purple, Computer
+// Weapons
+Weapon, Candlestick
+Weapon, Knife
+Weapon, Lead Pipe
+Weapon, Revolver
+Weapon, Rope
+Weapon, Wrench
