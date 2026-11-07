@@ -3,15 +3,12 @@ package clueGame;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.awt.Color;
-import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
@@ -38,8 +35,6 @@ public class Board {
         targets = new HashSet<>();
         players = new ArrayList<>();
         deck = new ArrayList<>();
-        players = new ArrayList<>();
-        deck = new ArrayList<>();
     }
 
     public static Board getInstance() {
@@ -57,12 +52,9 @@ public class Board {
             targets.clear();
             players.clear();
             deck.clear();
-            players.clear();
-            deck.clear();
 
             loadSetupConfig();
             loadLayoutConfig();
-            deal();
             deal();
 
         } catch (BadConfigFormatException | FileNotFoundException e) {
@@ -85,30 +77,17 @@ public class Board {
      * Rooms and spaces go in roomMap, players go in players, and every
      * Room, Player, and Weapon line also adds a card to the deck.
      */
-    /**
-     * Reads the setup file. Each line is a Room, Space, Player, or Weapon.
-     * Rooms and spaces go in roomMap, players go in players, and every
-     * Room, Player, and Weapon line also adds a card to the deck.
-     */
     public void loadSetupConfig() throws BadConfigFormatException, FileNotFoundException {
         roomMap.clear();
         players.clear();
         deck.clear();
-        players.clear();
-        deck.clear();
 
         Scanner scanner = new Scanner(findFile(setupConfigFile));
-        try {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine().trim();
+       
         try {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine().trim();
 
-                // skip blank lines and comments
-                if (line.isEmpty() || line.startsWith("//")) {
-                    continue;
-                }
                 // skip blank lines and comments
                 if (line.isEmpty() || line.startsWith("//")) {
                     continue;
@@ -138,42 +117,9 @@ public class Board {
         }
     }
 
-    // Room/Space line format: Room, name, initial
-    private void loadRoomLine(String[] parts, String line, boolean isRoom)
-            throws BadConfigFormatException {
-        if (parts.length != 3) {
-            throw new BadConfigFormatException("Invalid setup line: " + line);
-        }
-
-        String name = parts[1].trim();
-        String initialText = parts[2].trim();
-                String[] parts = line.split(",");
-                String type = parts[0].trim();
-
-                // use equalsIgnoreCase, not ==, to compare Strings
-                if (type.equalsIgnoreCase("Room") || type.equalsIgnoreCase("Space")) {
-                    loadRoomLine(parts, line, type.equalsIgnoreCase("Room"));
-                } else if (type.equalsIgnoreCase("Player")) {
-                    loadPlayerLine(parts, line);
-                } else if (type.equalsIgnoreCase("Weapon")) {
-                    loadWeaponLine(parts, line);
-                } else {
-                    throw new BadConfigFormatException("Invalid setup type: " + type);
-                }
-            }
-        } finally {
-            // runs whether or not an exception was thrown, so the file always closes
-            scanner.close();
-        }
-
-        if (roomMap.isEmpty()) {
-            throw new BadConfigFormatException("setup file contains no rooms or spaces");
-        }
-    }
 
     // Room/Space line format: Room, name, initial
-    private void loadRoomLine(String[] parts, String line, boolean isRoom)
-            throws BadConfigFormatException {
+    private void loadRoomLine(String[] parts, String line, boolean isRoom) throws BadConfigFormatException {
         if (parts.length != 3) {
             throw new BadConfigFormatException("Invalid setup line: " + line);
         }
@@ -184,16 +130,9 @@ public class Board {
         if (initialText.length() != 1 || name.isEmpty()) {
             throw new BadConfigFormatException("Invalid setup line: " + line);
         }
-        if (initialText.length() != 1 || name.isEmpty()) {
-            throw new BadConfigFormatException("Invalid setup line: " + line);
-        }
 
         char initial = initialText.charAt(0);
-        char initial = initialText.charAt(0);
 
-        if (roomMap.containsKey(initial)) {
-            throw new BadConfigFormatException("Duplicate room or space initial: " + initial);
-        }
         if (roomMap.containsKey(initial)) {
             throw new BadConfigFormatException("Duplicate room or space initial: " + initial);
         }
