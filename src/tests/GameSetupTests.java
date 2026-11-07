@@ -254,15 +254,70 @@ public class GameSetupTests {
 		return null;
 	}
 
-	// ==================================================================
-	// CARD SECTION: Card, CardType, deck, and Solution tests go below.
-	// ==================================================================
-	@Test
+    // ==================================================================
+    // CARD SECTION: Card, CardType, deck, and Solution tests.
+    // ==================================================================
+
+    /**
+     * Two cards with the same name and type should be equal,
+     * even if they are different objects.
+     */
+    @Test
     public void testCardEquals() {
-        // Two cards with the same name and type should be equal.
-        Card card1 = new Card("Miss Scarlet", CardType.PERSON);
-        Card card2 = new Card("Miss Scarlet", CardType.PERSON);
+        Card card1 = new Card("Ada Byte", CardType.PERSON);
+        Card card2 = new Card("Ada Byte", CardType.PERSON);
 
         assertEquals(card1, card2);
     }
+
+    /** Cards with different names should not be equal. */
+    @Test
+    public void testCardDifferentNames() {
+        Card card1 = new Card("Ada Byte", CardType.PERSON);
+        Card card2 = new Card("Rosa Cache", CardType.PERSON);
+
+        assertNotEquals(card1, card2);
+    }
+
+    /** Cards with different types should not be equal. */
+    @Test
+    public void testCardDifferentTypes() {
+        Card card1 = new Card("Knife", CardType.WEAPON);
+        Card card2 = new Card("Knife", CardType.ROOM);
+
+        assertNotEquals(card1, card2);
+    }
+
+    /** A card should equal itself. */
+    @Test
+    public void testCardEqualsItself() {
+        Card card = new Card("Rope", CardType.WEAPON);
+
+        assertEquals(card, card);
+    }
+
+    /** A card should not equal null. */
+    @Test
+    public void testCardNotEqualNull() {
+        Card card = new Card("Parlor", CardType.ROOM);
+
+        assertNotEquals(card, null);
+    }
+
+    /** Card name should be stored correctly. */
+    @Test
+    public void testCardName() {
+        Card card = new Card("Observatory", CardType.ROOM);
+
+        assertEquals("Observatory", card.getCardName());
+    }
+
+    /** Card type should be stored correctly. */
+    @Test
+    public void testCardType() {
+        Card card = new Card("Candlestick", CardType.WEAPON);
+
+        assertEquals(CardType.WEAPON, card.getCardType());
+    }
+
 }

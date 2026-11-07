@@ -1,4 +1,7 @@
+
 package clueGame;
+
+import java.util.Objects;
 
 public class Card {
 
@@ -20,11 +23,22 @@ public class Card {
 
     @Override
     public boolean equals(Object other) {
-        return false;
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+
+        Card card = (Card) other;
+
+        return cardName.equals(card.cardName)
+                && cardType == card.cardType;
     }
 
     @Override
     public int hashCode() {
-        return 0;
+        return Objects.hash(cardName, cardType);
     }
 }

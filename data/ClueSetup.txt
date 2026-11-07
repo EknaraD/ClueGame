@@ -12,12 +12,12 @@ Room, Bowling Alley, B
 Space, Unused, X
 Space, Walkway, W
 // People
-Person, Miss Scarlet, Red, Human
-Person, Colonel Mustard, Yellow, Computer
-Person, Mrs. White, White, Computer
-Person, Mr. Green, Green, Computer
-Person, Mrs. Peacock, Blue, Computer
-Person, Professor Plum, Purple, Computer
+Player, Ada Byte, Red, Human, 0, 7
+Player, Grace Loop, Blue, Computer, 0, 18
+Player, Linus Stack, Green, Computer, 7, 0
+Player, Rosa Cache, Yellow, Computer, 7, 25
+Player, Alan Null, Orange, Computer, 16, 0
+Player, Charles Bit, Magenta, Computer, 23, 20
 // Weapons
 Weapon, Candlestick
 Weapon, Knife
