@@ -11,17 +11,17 @@ Room, Bowling Alley, B
 // Other spaces on the board
 Space, Unused, X
 Space, Walkway, W
-// People
+// Players: name, color, Human/Computer, start row, start col
 Player, Ada Byte, Red, Human, 0, 7
 Player, Grace Loop, Blue, Computer, 0, 18
 Player, Linus Stack, Green, Computer, 7, 0
 Player, Rosa Cache, Yellow, Computer, 7, 25
 Player, Alan Null, Orange, Computer, 16, 0
 Player, Charles Bit, Magenta, Computer, 23, 20
-// Weapons
-Weapon, Candlestick
-Weapon, Knife
-Weapon, Lead Pipe
-Weapon, Revolver
-Weapon, Rope
+// Weapons: name
 Weapon, Wrench
+Weapon, Rope
+Weapon, Soldering Iron
+Weapon, Ethernet Cable
+Weapon, Trophy
+Weapon, Drone Propeller

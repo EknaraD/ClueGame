@@ -282,8 +282,8 @@ public class GameSetupTests {
     /** Cards with different types should not be equal. */
     @Test
     public void testCardDifferentTypes() {
-        Card card1 = new Card("Knife", CardType.WEAPON);
-        Card card2 = new Card("Knife", CardType.ROOM);
+        Card card1 = new Card("Ethernet Cable", CardType.WEAPON);
+        Card card2 = new Card("Ethernet Cable", CardType.ROOM);
 
         assertNotEquals(card1, card2);
     }
