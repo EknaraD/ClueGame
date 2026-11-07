@@ -1,19 +1,20 @@
-
 package clueGame;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
 public class Board {
     private static Board theInstance = new Board();
-
     private BoardCell[][] board;
     private int numRows;
     private int numColumns;
@@ -23,10 +24,17 @@ public class Board {
 
     private Map<Character, Room> roomMap;
     private Set<BoardCell> targets;
+    private ArrayList<Player> players;
+    private ArrayList<Card> deck;
 
+    private Solution solution;
+
+    private Random random = new Random();
     private Board() {
         roomMap = new HashMap<>();
         targets = new HashSet<>();
+        players = new ArrayList<>();
+        deck = new ArrayList<>();
     }
 
     public static Board getInstance() {
@@ -42,9 +50,12 @@ public class Board {
         try {
             roomMap.clear();
             targets.clear();
+            players.clear();
+            deck.clear();
 
             loadSetupConfig();
             loadLayoutConfig();
+            deal();
 
         } catch (BadConfigFormatException | FileNotFoundException e) {
             e.printStackTrace();
@@ -61,61 +72,224 @@ public class Board {
         return new File("data", filename);
     }
 
+    /**
+     * Reads the setup file. Each line is a Room, Space, Player, or Weapon.
+     * Rooms and spaces go in roomMap, players go in players, and every
+     * Room, Player, and Weapon line also adds a card to the deck.
+     */
     public void loadSetupConfig() throws BadConfigFormatException, FileNotFoundException {
-
         roomMap.clear();
+        players.clear();
+        deck.clear();
 
         Scanner scanner = new Scanner(findFile(setupConfigFile));
+        try {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine().trim();
 
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine().trim();
+                // skip blank lines and comments
+                if (line.isEmpty() || line.startsWith("//")) {
+                    continue;
+                }
 
-            //blank lines and comments
-            if (line.isEmpty() || line.startsWith("//")) {
-                continue;
+                String[] parts = line.split(",");
+                String type = parts[0].trim();
+
+                // use equalsIgnoreCase, not ==, to compare Strings
+                if (type.equalsIgnoreCase("Room") || type.equalsIgnoreCase("Space")) {
+                    loadRoomLine(parts, line, type.equalsIgnoreCase("Room"));
+                } else if (type.equalsIgnoreCase("Player")) {
+                    loadPlayerLine(parts, line);
+                } else if (type.equalsIgnoreCase("Weapon")) {
+                    loadWeaponLine(parts, line);
+                } else {
+                    throw new BadConfigFormatException("Invalid setup type: " + type);
+                }
             }
-
-            String[] parts = line.split(",");
-
-            if (parts.length != 3) {
-                scanner.close();
-                throw new BadConfigFormatException(
-                    "Invalid setup line: " + line);
-            }
-
-            String type = parts[0].trim();
-            String name = parts[1].trim();
-            String initialText = parts[2].trim();
-
-            if (initialText.length() != 1 || name.isEmpty()) {
-                scanner.close();
-                throw new BadConfigFormatException(
-                    "Invalid setup line: " + line);
-            }
-
-            char initial = initialText.charAt(0);
-
-            if (roomMap.containsKey(initial)) {
-                scanner.close();
-                throw new BadConfigFormatException(
-                    "Duplicate room or space initial: " + initial);
-            }
-
-            if (type.equalsIgnoreCase("Room") || type.equalsIgnoreCase("Space")) {
-                roomMap.put(initial, new Room(name));
-            } else {
-                scanner.close();
-                throw new BadConfigFormatException(
-                    "Invalid setup type: " + type);
-            }
+        } finally {
+            // runs whether or not an exception was thrown, so the file always closes
+            scanner.close();
         }
-
-        scanner.close();
 
         if (roomMap.isEmpty()) {
-            throw new BadConfigFormatException(
-                "setup file contains no rooms or spaces");
+            throw new BadConfigFormatException("setup file contains no rooms or spaces");
         }
+    }
+
+    // Room/Space line format: Room, name, initial
+    private void loadRoomLine(String[] parts, String line, boolean isRoom)
+            throws BadConfigFormatException {
+        if (parts.length != 3) {
+            throw new BadConfigFormatException("Invalid setup line: " + line);
+        }
+
+        String name = parts[1].trim();
+        String initialText = parts[2].trim();
+
+        if (initialText.length() != 1 || name.isEmpty()) {
+            throw new BadConfigFormatException("Invalid setup line: " + line);
+        }
+
+        char initial = initialText.charAt(0);
+
+        if (roomMap.containsKey(initial)) {
+            throw new BadConfigFormatException("Duplicate room or space initial: " + initial);
+        }
+
+        roomMap.put(initial, new Room(name));
+
+        // only real rooms are cards; Walkway and Unused are not
+        if (isRoom) {
+            deck.add(new Card(name, CardType.ROOM));
+        }
+    }
+
+    // Player line format: Player, name, color, Human/Computer, start row, start col
+    private void loadPlayerLine(String[] parts, String line) throws BadConfigFormatException {
+        if (parts.length != 6) {
+            throw new BadConfigFormatException("Invalid setup line: " + line);
+        }
+
+        String name = parts[1].trim();
+        Color color = convertColor(parts[2]);
+        String humanOrComputer = parts[3].trim();
+        int row;
+        int col;
+
+        try {
+            row = Integer.parseInt(parts[4].trim());
+            col = Integer.parseInt(parts[5].trim());
+        } catch (NumberFormatException e) {
+            throw new BadConfigFormatException("Bad start location: " + line);
+        }
+
+        if (name.isEmpty()) {
+            throw new BadConfigFormatException("Player has no name: " + line);
+        }
+
+        if (humanOrComputer.equalsIgnoreCase("Human")) {
+            players.add(new HumanPlayer(name, color, row, col));
+        } else if (humanOrComputer.equalsIgnoreCase("Computer")) {
+            players.add(new ComputerPlayer(name, color, row, col));
+        } else {
+            throw new BadConfigFormatException("Player must be Human or Computer: " + line);
+        }
+
+        //every player also represents a person card
+        deck.add(new Card(name, CardType.PERSON));
+    }
+
+    //Weapon line format: Weapon, name
+    private void loadWeaponLine(String[] parts, String line)
+            throws BadConfigFormatException {
+
+        if (parts.length != 2 || parts[1].trim().isEmpty()) {
+            throw new BadConfigFormatException("Invalid setup line: " + line);
+        }
+
+        String name = parts[1].trim();
+
+        deck.add(new Card(name, CardType.WEAPON));
+    }
+
+    // helper function to decode the color name to a Color object
+    private Color convertColor(String colorName) throws BadConfigFormatException {
+        switch (colorName.trim().toLowerCase()) {
+            case "red":
+                return Color.RED;
+            case "blue":
+                return Color.BLUE;
+            case "green":
+                return Color.GREEN;
+            case "yellow":
+                return Color.YELLOW;
+            case "orange":
+                return Color.ORANGE;
+            case "magenta":
+                return Color.MAGENTA;
+            case "pink":
+                return Color.PINK;
+            case "cyan":
+                return Color.CYAN;
+            case "white":
+                return Color.WHITE;
+            case "black":
+                return Color.BLACK;
+            case "gray":
+                return Color.GRAY;
+            default:
+                throw new BadConfigFormatException("Unknown player color: " + colorName);
+        }
+    }
+
+    /**
+     * Selects one room, one person, and one weapon
+     * for the solution. Deals all remaining cards
+     * to the players.
+     */
+    public void deal() {
+
+        solution = null;
+
+        // Clear all player hands before dealing
+        for (Player player : players) {
+            player.clearHand();
+        }
+
+        // Make sure we have players and all three card types
+        if (players.isEmpty() || !hasCardType(CardType.ROOM) || !hasCardType(CardType.PERSON) || !hasCardType(CardType.WEAPON)) {
+            return;
+        }
+
+        //copy of the deck
+        ArrayList<Card> cardsToDeal = new ArrayList<>(deck);
+
+        //randomly select one card of each type
+        Card room = pickRandom(cardsToDeal, CardType.ROOM);
+        Card person = pickRandom(cardsToDeal, CardType.PERSON);
+        Card weapon = pickRandom(cardsToDeal, CardType.WEAPON);
+
+        //store the three cards in the solution
+        solution = new Solution(room, person, weapon);
+
+        //remove solution cards from the cards being dealt
+        cardsToDeal.remove(room);
+        cardsToDeal.remove(person);
+        cardsToDeal.remove(weapon);
+
+        // Shuffle the remaining cards
+        Collections.shuffle(cardsToDeal, random);
+
+        // Deal cards one at a time to each player
+        for (int i = 0; i < cardsToDeal.size(); i++) {
+            players.get(i % players.size()).updateHand(cardsToDeal.get(i));
+        }
+    }
+
+    // Checks whether the deck contains a card of a certain type
+    private boolean hasCardType(CardType type) {
+
+        for (Card card : deck) {
+            if (card.getCardType() == type) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Returns a random card of the requested type
+    private Card pickRandom(List<Card> cards, CardType type) {
+
+        ArrayList<Card> matchingCards = new ArrayList<>();
+
+        for (Card card : cards) {
+            if (card.getCardType() == type) {
+                matchingCards.add(card);
+            }
+        }
+
+        return matchingCards.get(random.nextInt(matchingCards.size()));
     }
 
     public void loadLayoutConfig()
@@ -341,4 +515,17 @@ public class Board {
     public Set<BoardCell> getTargets() {
         return targets;
     }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public ArrayList<Card> getDeck() {
+        return deck;
+    }
+
+    public Solution getSolution() {
+        return solution;
+    }
+
 }

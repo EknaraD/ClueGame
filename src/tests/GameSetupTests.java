@@ -315,7 +315,7 @@ public class GameSetupTests {
     /** Card type should be stored correctly. */
     @Test
     public void testCardType() {
-        Card card = new Card("Candlestick", CardType.WEAPON);
+        Card card = new Card("Trophy", CardType.WEAPON);
 
         assertEquals(CardType.WEAPON, card.getCardType());
     }
