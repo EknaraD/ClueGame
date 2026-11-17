@@ -16,17 +16,18 @@ public class GameControlPanel extends JPanel {
 	/**
 	 * Constructor for the panel, it does 90% of the work
 	 */
-	public GameControlPanel()  {
-		...
-	}
+	//public GameControlPanel()  {
+	//	...
+	//}
 	
-	...
+	//...
 	
 	/**
 	 * Main to test the panel
 	 * 
 	 * @param args
 	 */
+	/*
 	public static void main(String[] args) {
 		GameControlPanel panel = new GameControlPanel();  // create the panel
 		JFrame frame = new JFrame();  // create the frame 
@@ -39,5 +40,5 @@ public class GameControlPanel extends JPanel {
 		panel.setTurn(new ComputerPlayer( "Col. Mustard", 0, 0, "orange"), 5);
 		panel.setGuess( "I have no guess!");
 		panel.setGuessResult( "So you have nothing?");
-	}
+	} */
 }
