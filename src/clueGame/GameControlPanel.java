@@ -101,14 +101,20 @@ public class GameControlPanel extends JPanel {
         theRoll.setText(Integer.toString(roll));
     }
 
-    // Updates the guess text
     public void setGuess(String guess) {
-        theGuess.setText(guess);
+        if (guess == null) {
+            theGuess.setText("");
+        } else {
+            theGuess.setText(guess);
+        }
     }
 
-    // Updates the guess result text
     public void setGuessResult(String result) {
-        theGuessResult.setText(result);
+        if (result == null) {
+            theGuessResult.setText("");
+        } else {
+            theGuessResult.setText(result);
+        }
     }
 
     //Main to test the panel
