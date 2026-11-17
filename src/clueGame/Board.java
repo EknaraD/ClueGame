@@ -27,7 +27,8 @@ public class Board {
     private ArrayList<Player> players;
     private ArrayList<Card> deck;
 
-    private Solution solution;
+    private Solution theAnswer;
+
 
     private Random random = new Random();
     private Board() {
@@ -230,7 +231,7 @@ public class Board {
      */
     public void deal() {
 
-        solution = null;
+        theAnswer = null;
 
         // Clear all player hands before dealing
         for (Player player : players) {
@@ -251,7 +252,7 @@ public class Board {
         Card weapon = pickRandom(cardsToDeal, CardType.WEAPON);
 
         //store the three cards in the solution
-        solution = new Solution(room, person, weapon);
+        theAnswer = new Solution(room, person, weapon);
 
         //remove solution cards from the cards being dealt
         cardsToDeal.remove(room);
@@ -526,7 +527,38 @@ public class Board {
     }
 
     public Solution getSolution() {
-        return solution;
+        return theAnswer;
+    }
+
+    // lets tests use a known answer instead of the random one from deal()
+    public void setSolution(Solution solution) {
+        this.theAnswer = solution;
+    }
+
+    // lets tests use a small set of players with known hands
+    public void setPlayers(ArrayList<Player> players) {
+        this.players = players;
+    }
+
+    // true only if the room, person and weapon all match the solution
+    public boolean checkAccusation(Solution accusation) {
+        return theAnswer.getPerson().equals(accusation.getPerson()) && theAnswer.getRoom().equals(accusation.getRoom()) && theAnswer.getWeapon().equals(accusation.getWeapon()) ? true : false;
+    }
+
+    // ask each player after the suggester, in order, to disprove the suggestion
+    public Card handleSuggestion(Solution suggestion, Player suggester) {
+        int suggesterIndex = players.indexOf(suggester);
+        int index = (suggesterIndex + 1) % players.size();
+
+        // ask each player after the suggester in order, stopping when we get back to the suggester
+        while (index != suggesterIndex) {
+            Card matchingCard = players.get(index).disproveSuggestion(suggestion);
+            if (matchingCard != null) {
+                return matchingCard;
+            }
+            index = (index + 1) % players.size();
+        }
+        return null;
     }
 
 }
