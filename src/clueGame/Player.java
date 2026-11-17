@@ -30,7 +30,6 @@ public abstract class Player {
 
     public int getRow() {
         return row;
-
     }
 
     public int getColumn() {
