@@ -51,12 +51,12 @@ public class KnownCardsPanel extends JPanel {
         roomPanel.setBorder(new TitledBorder(new EtchedBorder(), "Rooms"));
         weaponPanel.setBorder(new TitledBorder(new EtchedBorder(), "Weapons"));
 
-        // Add cards by category in order: People, Rooms, Weapons
+        //add cards by category in order: People, Rooms, Weapons
         addCategoryCards(CardType.PERSON, personPanel);
         addCategoryCards(CardType.ROOM, roomPanel);
         addCategoryCards(CardType.WEAPON, weaponPanel);
 
-        // Add the three panels to the main panel
+        //add the three panels to the main panel
         removeAll();
         add(personPanel);
         add(roomPanel);
@@ -66,9 +66,9 @@ public class KnownCardsPanel extends JPanel {
         repaint();
     }
 
-    // Helper to populate "In Hand" and "Seen" cards for a specific card type category
+    //populate "In Hand" and "Seen" cards for a specific card type category
     private void addCategoryCards(CardType type, JPanel panel) {
-        // --- In Hand Section ---
+        //In Hand Section ---
         addSectionLabel(panel, "In Hand:");
 
         boolean hasHandCards = false;
@@ -87,12 +87,12 @@ public class KnownCardsPanel extends JPanel {
             panel.add(noneLabel);
         }
 
-        // --- Seen Section ---
+        //Seen Section ---
         addSectionLabel(panel, "Seen:");
 
         boolean hasSeenCards = false;
         for (Card card : human.getSeenCards()) {
-            // Do not display cards that are already in hand
+            //dont display cards that are already in hand
             if (human.getHand().contains(card)) {
                 continue;
             }
@@ -106,7 +106,7 @@ public class KnownCardsPanel extends JPanel {
         }
     }
 
-    // Creates a styled label for a card
+    //creates a styled label for a card
     private JLabel createCardLabel(Card card, Player owner, boolean isInHand) {
         JLabel label = new JLabel(card.getCardName(), SwingConstants.CENTER);
         label.setOpaque(true);
@@ -123,7 +123,7 @@ public class KnownCardsPanel extends JPanel {
         return label;
     }
 
-    // Finds which player has the card in their hand
+    //finds which player has the card in their hand
     private Player findOwner(Card card) {
         for (Player player : players) {
             if (player.getHand().contains(card)) {
@@ -133,7 +133,7 @@ public class KnownCardsPanel extends JPanel {
         return null;
     }
 
-    // Makes player colors lighter so the text is easier to read
+    //makes player colors lighter so the text is easier to read
     private Color lightenColor(Color color) {
         int red = (color.getRed() + 255) / 2;
         int green = (color.getGreen() + 255) / 2;
@@ -142,25 +142,25 @@ public class KnownCardsPanel extends JPanel {
         return new Color(red, green, blue);
     }
 
-    // Adds a left-aligned heading to a card section
+    //adds a left-aligned heading to a card section
     private void addSectionLabel(JPanel panel, String text) {
         JLabel label = new JLabel(text);
         label.setHorizontalAlignment(SwingConstants.LEFT);
         panel.add(label);
     }
 
-    // Main method to test the panel
+    //Main method to test the panel
     public static void main(String[] args) {
         HumanPlayer human = new HumanPlayer("Ada Byte", Color.RED, 0, 7);
         ComputerPlayer computer1 = new ComputerPlayer("Grace Loop", Color.BLUE, 0, 18);
         ComputerPlayer computer2 = new ComputerPlayer("Linus Stack", Color.GREEN, 7, 0);
 
-        // Give the human some cards
+        //give human cards
         human.updateHand(new Card("Observatory", CardType.ROOM));
         human.updateHand(new Card("Wrench", CardType.WEAPON));
         human.updateHand(new Card("Ada Byte", CardType.PERSON));
 
-        // Give the computers some cards
+        //give computers cards
         Card rope = new Card("Rope", CardType.WEAPON);
         Card armory = new Card("Armory", CardType.ROOM);
         Card grace = new Card("Grace Loop", CardType.PERSON);
@@ -169,22 +169,19 @@ public class KnownCardsPanel extends JPanel {
         computer1.updateHand(grace);
         computer2.updateHand(armory);
 
-        // Record cards seen by the human
+        //record cards seen by the human
         human.updateSeen(rope);
         human.updateSeen(armory);
         human.updateSeen(grace);
 
-        // Create the player list
+        //player list
         List<Player> players = new ArrayList<>();
 
         players.add(human);
         players.add(computer1);
         players.add(computer2);
 
-        // Create the panel
         KnownCardsPanel panel = new KnownCardsPanel(human, players);
-
-        // Display the panel
         JFrame frame = new JFrame("Known Cards");
 
         frame.setContentPane(panel);
