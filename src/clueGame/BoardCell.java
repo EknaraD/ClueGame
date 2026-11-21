@@ -147,9 +147,9 @@ public class BoardCell {
 
         int x = col * cWidth;
         int y = row * cHeight;
-        
+
         //new color for walkways :D
-        Color lightBlue = new Color(52, 174, 235);
+        Color lightBlue = new Color(93, 203, 255);
 
         //background color based on cell type
         if (isWalkway()) {
