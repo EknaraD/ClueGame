@@ -189,7 +189,6 @@ public class BoardCell {
                 default:
                     break;
             }
-
             //reset drawing thickness
             g2.setStroke(new BasicStroke(1));
         }

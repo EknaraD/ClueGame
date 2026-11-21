@@ -17,7 +17,7 @@ public class BoardPanel extends JPanel {
     protected void paintComponent(Graphics g) {
 
         super.paintComponent(g);
-        
+
         int rows = board.getNumRows();
         int columns = board.getNumColumns();
         if (rows == 0 || columns == 0) {
@@ -44,7 +44,6 @@ public class BoardPanel extends JPanel {
     }
 
     private void drawRoomNames(Graphics g, int cellWidth, int cellHeight) {
-
         g.setColor(Color.BLUE);
         g.setFont(new Font("Arial", Font.BOLD, 14));
 
@@ -62,9 +61,7 @@ public class BoardPanel extends JPanel {
     }
 
     private void drawPlayers(Graphics g, int cellWidth, int cellHeight) {
-
         for (Player player : board.getPlayers()) {
-
             int row = player.getRow();
             int col = player.getColumn();
 
