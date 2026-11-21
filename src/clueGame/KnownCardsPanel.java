@@ -104,6 +104,14 @@ public class KnownCardsPanel extends JPanel {
                 panel.add(label);
             }
         }
+
+        if (!hasSeenCards) {
+            JLabel noneLabel = new JLabel("None", SwingConstants.CENTER);
+            noneLabel.setOpaque(true);
+            noneLabel.setBackground(Color.WHITE);
+            noneLabel.setBorder(new EtchedBorder());
+            panel.add(noneLabel);
+        }
     }
 
     //creates a styled label for a card

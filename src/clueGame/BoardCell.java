@@ -3,6 +3,11 @@ package clueGame;
 import java.util.HashSet;
 import java.util.Set;
 
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.BasicStroke;
+
 public class BoardCell {
     private int row;
     private int col;
@@ -135,5 +140,58 @@ public class BoardCell {
 
     public void clearAdjList() {
         adjList.clear();
+    }
+
+
+    public void draw(Graphics g, int cWidth, int cHeight) {
+
+        int x = col * cWidth;
+        int y = row * cHeight;
+
+        //background color based on cell type
+        if (isWalkway()) {
+            g.setColor(Color.YELLOW);
+        } else if (initial == 'X') {
+            g.setColor(Color.BLACK);
+        } else {
+            g.setColor(Color.LIGHT_GRAY);
+        }
+
+        g.fillRect(x, y, cWidth, cHeight);
+
+        //black border around cell
+        g.setColor(Color.BLACK);
+        g.drawRect(x, y, cWidth, cHeight);
+
+        //blue door indicator
+        if (isDoorway()) {
+            Graphics2D g2 = (Graphics2D) g;
+            g2.setColor(Color.BLUE);
+            g2.setStroke(new BasicStroke(4));
+
+            switch (doorDirection) {
+                case UP:
+                    g2.drawLine(x, y, x + cWidth, y);
+                    break;
+
+                case DOWN:
+                    g2.drawLine(x, y + cHeight, x + cWidth, y + cHeight);
+                    break;
+
+                case LEFT:
+                    g2.drawLine(x, y, x, y + cHeight);
+                    break;
+
+                case RIGHT:
+                    g2.drawLine(x + cWidth, y, x + cWidth, y + cHeight);
+                    break;
+
+                default:
+                    break;
+            }
+
+            //reset drawing thickness
+            g2.setStroke(new BasicStroke(1));
+        }
     }
 }
