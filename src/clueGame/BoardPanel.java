@@ -17,10 +17,9 @@ public class BoardPanel extends JPanel {
     protected void paintComponent(Graphics g) {
 
         super.paintComponent(g);
-
+        
         int rows = board.getNumRows();
         int columns = board.getNumColumns();
-
         if (rows == 0 || columns == 0) {
             return;
         }
