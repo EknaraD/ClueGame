@@ -45,7 +45,7 @@ public class BoardPanel extends JPanel {
 
     private void drawRoomNames(Graphics g, int cellWidth, int cellHeight) {
         g.setColor(Color.BLUE);
-        g.setFont(new Font("Arial", Font.BOLD, 14));
+        g.setFont(new Font("SansSerif", Font.BOLD, 14));
 
         for (Room room : board.getRoomMap().values()) {
             BoardCell label = room.getLabelCell();

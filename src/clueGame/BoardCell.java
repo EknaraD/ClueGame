@@ -147,10 +147,13 @@ public class BoardCell {
 
         int x = col * cWidth;
         int y = row * cHeight;
+        
+        //new color for walkways :D
+        Color lightBlue = new Color(52, 174, 235);
 
         //background color based on cell type
         if (isWalkway()) {
-            g.setColor(Color.YELLOW);
+            g.setColor(lightBlue);
         } else if (initial == 'X') {
             g.setColor(Color.BLACK);
         } else {
